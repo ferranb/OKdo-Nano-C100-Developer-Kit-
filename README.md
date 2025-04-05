@@ -85,6 +85,7 @@ I have the device running with the full operating system on a SSD. Theorically, 
 
 # References
 
+* [Ubuntu snippets](https://github.com/ferranb/ubuntu_snippets)
 * https://docs.nvidia.com/jetson/archives/r34.1/DeveloperGuide/index.html#page/Tegra%2520Linux%2520Driver%2520Package%2520Development%2520Guide%2Fbootflow_jetson_nano.html%23%5B/url%5D
 * [OKDO official images mirror from RS-Online](https://www.rs-online.com/designspark/okdo-software-and-downloads-hub)
 * [OKDO specifications](https://docs.rs-online.com/9149/A700000009238033.pdf)
