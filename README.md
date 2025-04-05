@@ -1,9 +1,10 @@
-# OKdo Nano C100 Developer Kit-
+# OKdo Nano C100 Developer Kit 
 
 **Disclaimer: Follow these notes at your own risk. I'm not responsible for anything you run in your devices. It's up to you!**
 
 This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). Its a good alternative to official NVIDIA nano products which are most of the time out of stock. But it's an extremely poorly documented device.
 
+If you need more detail on any point and I know it, please, don't hesitate to contact me. These notes are intentionally short because they're enought for me :-)
 
 # Hardware
 * The okdo website doesn't work. I really don't know if the company is still operatin, if they just don't care about the website, or if they were adquired by another company.
@@ -70,9 +71,7 @@ It's very important to connect an HDMI screen and a keyboard to see what's happe
 
 *Option 1. Through SD card*
 
-I've tried different approaches that didn't work. Finally, I used the SD card bootloader as a gateway to boot from USB SSD by modifying `/boot/extlinux/extlinux.conf`. You just need to change the line saying `root=/dev/mmcblk0p1` to `root=/dev/sda1 or, better, `root=PARTUUID='xxxx'`.
-
-You can obtain the PARTUUID with `blkid`. It didn't work with `root=UUID='xxxx'`. 
+I've tried different approaches that didn't work. Finally, I used the SD card bootloader as a gateway to boot from USB SSD by modifying `/boot/extlinux/extlinux.conf`. You just need to change the line saying `root=/dev/mmcblk0p1` to `root=/dev/sda1` or, better, `root=PARTUUID='xxxx'`. You can obtain the PARTUUID with `blkid`. It didn't work for me with `root=UUID='xxxx'`. 
 
 This solution its enought for me. It boots fast, but I've sacrificed an SD card just solve this. Its a reasoble price to pay.
 
@@ -90,3 +89,5 @@ I have the device running with the full operating system on a SSD. Theorically, 
 * [OKDO official images mirror from RS-Online](https://www.rs-online.com/designspark/okdo-software-and-downloads-hub)
 * [OKDO specifications](https://docs.rs-online.com/9149/A700000009238033.pdf)
 * [Customer image for SD](https://github.com/LetsOKdo/c100-bootupd)
+* https://gist.github.com/KEINOS/47b0a89f32c77adbf3887b2469e4ce7c
+* https://iothonpo.com/nano-c100-setup/
