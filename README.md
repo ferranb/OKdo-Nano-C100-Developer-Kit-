@@ -4,12 +4,12 @@
 
 This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). It's a good alternative to the official [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) product which has been discontinued. The replacement product, [NVIDIA Jetson Nano Super Developr Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), is usually out of stock. 
 
-The problem is that *OKdo Nano C100 Developer Kit* is an extremely poorly documented device.
+The problem is that *OKdo Nano C100 Developer Kit* is an extremely poorly documented device. The [okdo website](https://www.okdo.com/) doesn't work. I really don't know if the company is still operatin, if they just don't care about the website, or if they were adquired by another company.
 
 If you need more detail on any point and I know it, please, don't hesitate to contact me. These notes are intentionally short because they're enought for me :-)
 
 # Hardware
-* The okdo website doesn't work. I really don't know if the company is still operatin, if they just don't care about the website, or if they were adquired by another company.
+
 * [Radxa NX4 IO Board](https://radxa.com/products/io-board/nx5-io-board/). The one I own has no *Markrom key* or *power button*.
 * [NVIDIA Jetson Nano](https://developer.nvidia.com/buy-jetson?product=jetson_nano). It has a Tegra processor and the 16GB eMMC storage.
 
@@ -35,7 +35,9 @@ Check the version with:
     Release:	18.04
     Codename:	bionic
 
-It contains NVIDIA L4T ([Linux for Tegra](https://developer.nvidia.com/embedded/linux-tegra-r321)) for Tegra, a NVIDIA  Linux distribution for Tegra devices. Check the version with:
+It contains NVIDIA L4T ([Linux for Tegra](https://developer.nvidia.com/embedded/linux-tegra-r321)) for Tegra, a NVIDIA Linux distribution for Tegra devices. 
+
+Check the version with:
 
     nano@nano:~$$ cat /etc/nv_tegra_release
     # R32 (release), REVISION: 7.2, GCID: 30192233, BOARD: t210ref, EABI: aarch64, DATE: Wed Apr 20 21:34:48 UTC 2022
@@ -51,17 +53,15 @@ new USB hub with the following components:
 * A volume named LT4-README with some files containing details.
 * Two network interfaces.
 
-When the eMMC Ubuntu is running you can connect through `SSH` by running `ssh nano@192.168.55.1` and using `nano` as the password:
+When the eMMC Ubuntu is running you can connect through `SSH` using `nano` as both username and password by running:
 
-    $ lsusb | grep NVIDIA
-    Bus 001 Device 058: ID 0955:7020 NVIDIA Corp. L4T (Linux for Tegra) running on Tegra
+    ssh nano@192.168.55.1
 
 To connect to the serial port, use a terminal program like `screen` or `minicom` and connect to the appropriate `/dev/tty*` device. In my case, it is:
 
     sudo screen /dev/ttyACM0 115200
     
-Please note that the microUSB connection depends on linux running. If the linux doesn't boot, you won't have access. 
-If that happens, you can boot from an SD card and recover it.
+Please note that the microUSB connection depends on linux running. If the linux doesn't boot, you won't have access. If that happens, you can boot from an SD card and recover it.
 
 # Boot from SD card
 
@@ -83,7 +83,7 @@ This is a trickier option that I haven't had time to try. Theoricaly, you need t
 
 # Next steps
 
-I have the device running with the full operating system on a SSD. Theorically, from this point on, coding should be the same that as the original NVIDIA nano... we'll see. I'll check how Torch works, the pinouts, camera and so on.  
+I have the device running with the full operating system on a SSD. Theorically, from this point on, coding should be the same that as the original NVIDIA nano... we'll see. I'll check [how Torch works](pytorch.md), the pinouts, camera and so on.  
 
 # References
 
