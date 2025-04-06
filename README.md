@@ -2,7 +2,9 @@
 
 **Disclaimer: Follow these notes at your own risk. I'm not responsible for anything you run in your devices. It's up to you!**
 
-This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). Its a good alternative to official NVIDIA nano products which are most of the time out of stock. But it's an extremely poorly documented device.
+This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). It's a good alternative to the official [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) product which has been discontinued. The replacement product, [NVIDIA Jetson Nano Super Developr Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), is usually out of stock. 
+
+The problem is that *OKdo Nano C100 Developer Kit* is an extremely poorly documented device.
 
 If you need more detail on any point and I know it, please, don't hesitate to contact me. These notes are intentionally short because they're enought for me :-)
 
