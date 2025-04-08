@@ -178,6 +178,11 @@ To install [torchaudio](https://pytorch.org/audio/main/installation.html#compati
 
 # Install Python 3.12.9
 
+Set max performace as suggested [here (Build from source section)](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048):
+
+    sudo nvpmodel -m 0
+    sudo jetson_clocks
+
 Follow these steps to install Python [3.12.9](https://github.com/python/cpython/tree/v3.12.9)
 
 Install the [build dependencies](https://devguide.python.org/getting-started/setup-building/#build-dependencies):
