@@ -4,7 +4,7 @@
 
 This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). It's an available equivalent to the discontinued [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) product. The replacement product, [NVIDIA Jetson Nano Super Developr Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), is usually out of stock. 
 
-The problem is that *OKdo Nano C100 Developer Kit* is an extremely poorly documented device. The [okdo website](https://www.okdo.com/) doesn't work. I really don't know if the company is still operatin, if they just don't care about the website, or if they were adquired by another company.
+The problem is that *OKdo Nano C100 Developer Kit* is an extremely poorly documented device. The [okdo website](https://www.okdo.com/) doesn't work. I really don't know if the company is still operating, if they just don't care about the website, or if they were adquired by another company.
 
 If you need more detail on any point and I know it, please, don't hesitate to contact me. These notes are intentionally short because they're enought for me :-)
 
@@ -83,7 +83,7 @@ This is a trickier option that I haven't had time to try. Theoricaly, you need t
 
 # About the system updates
 
-**WARNING**. Don't run sudo `sudo apt update && sudo apt upgrade` because it can break some things. It's better to leave everything unchanged to avoid breaking compatibility with CUDA, cuDNN, or other NVIDIA components.
+**WARNING**. Don't run `sudo apt update && sudo apt upgrade` because it can break some things. It's better to leave everything unchanged to avoid breaking compatibility with CUDA, cuDNN, or other NVIDIA components.
 
 # Checking what's installed
 
@@ -130,7 +130,7 @@ As a recap, my Jetson has:
 
 # Installing PyTorch 1.10.0
 
-We are going to install [Torch 1.10.0](https://github.com/pytorch/pytorch/tree/v1.10.0) because is the one that [NVIDIA recommends](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048):
+We are going to install [PyTorch 1.10.0](https://github.com/pytorch/pytorch/tree/v1.10.0) because is the one that [NVIDIA recommends](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048):
 
     wget https://nvidia.box.com/shared/static/fjtbno0vpo676a25cgvuqc1wty0fkkg6.whl -O torch-1.10.0-cp36-cp36m-linux_aarch64.whl
     sudo apt-get install python3-pip libopenblas-base libopenmpi-dev libomp-dev
