@@ -42,8 +42,6 @@ Check the version with:
     nano@nano:~$$ cat /etc/nv_tegra_release
     # R32 (release), REVISION: 7.2, GCID: 30192233, BOARD: t210ref, EABI: aarch64, DATE: Wed Apr 20 21:34:48 UTC 2022
 
-Note that this is the preinstalled distribution, not the one that your are going to use. It depends on the image you install on the SD Card or USB drive.
-
 # MicroUSB port
 
 If you have a MicroUSB cable, you can plug it in and connect it to your computer. Your computer will detect a
@@ -234,23 +232,16 @@ Apply the patch, as stated the *Apply Patch* section of [this page](https://foru
 We apply the following patch to avoid some issues with `distutils:
 
     patch -p1 <_
-    --- ../cmake.py	2025-04-08 14:46:10.045550987 +0100
-    +++ tools/setup_helpers/cmake.py	2025-04-08 14:37:54.649051157 +0100
-    @@ -120,13 +120,7 @@
+    --- cmake_new.py	
+    +++ tools/setup_helpers/cmake.py
+    @@ -116,6 +116,7 @@
+             "Returns cmake command."
+     
+             cmake_command = 'cmake'
+    +        return cmake_command
+             if IS_WINDOWS:
                  return cmake_command
              cmake3 = which('cmake3')
-             cmake = which('cmake')
-    -        if cmake3 is not None and CMake._get_version(cmake3) >= distutils.version.LooseVersion("3.10.0"):
-    -            cmake_command = 'cmake3'
-    -            return cmake_command
-    -        elif cmake is not None and CMake._get_version(cmake) >= distutils.version.LooseVersion("3.10.0"):
-    -            return cmake_command
-    -        else:
-    -            raise RuntimeError('no cmake or cmake3 with version >= 3.10.0 found')
-    +        return 'cmake'
-     
-         @staticmethod
-         def _get_version(cmd: str) -> Any:
     _
 
 Install some required packages:
@@ -292,7 +283,7 @@ Note that `TORCH_CUDA_ARCH_LIST` is set to `5.3`. That's because [here](https://
 
 Take a deep breath. Pray. Cross your fingers. Here we go!
 
-    nohup python3.12 setup.py bdist_wheel & # Tue Apr  8 10:44:12 +01 2025
+    nohup python3.12 setup.py bdist_wheel &
     tail -f nohup.out
 
 It will take about 12 hours to finish... After buid completes without errors, you can install torch:
@@ -317,7 +308,7 @@ Remove the swap space added (if any):
 
 # Next Steps
 
-*TODO*: Install a newer Python and Torch version, test Docker setups, etc.
+*TODO*: Test Docker setups, etc.
 
 # References
 
