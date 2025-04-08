@@ -2,7 +2,7 @@
 
 **Disclaimer: Follow these notes at your own risk. I'm not responsible for anything you run in your devices. It's up to you!**
 
-This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). It's an available equivalent to the discontinued [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) product. The replacement product, [NVIDIA Jetson Nano Super Developr Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), is usually out of stock. 
+This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). It's an available equivalent to the discontinued [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) product. The replacement product, [NVIDIA Jetson Nano Super Developr Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), is [usually out of stock](https://forums.developer.nvidia.com/t/jetson-orin-nano-super-availability/325782). 
 
 The problem is that *OKdo Nano C100 Developer Kit* is an extremely poorly documented device. The [okdo website](https://www.okdo.com/) doesn't work. I really don't know if the company is still operating, if they just don't care about the website, or if they were adquired by another company.
 
@@ -142,8 +142,11 @@ After the install, you can check it:
     python3 <<_
     import torch
     print(torch.__version__)
-    print('CUDA available: ' + str(torch.cuda.is_available()))
-    print('cuDNN version: ' + str(torch.backends.cudnn.version()))
+    print('CUDA available:', str(torch.cuda.is_available()))
+    print('cuDNN version:', str(torch.backends.cudnn.version()))
+    print('GPUs:', str(torch.cuda.device_count()))
+    for i in range(torch.cuda.device_count()):
+        print('GPU',i, torch.cuda.get_device_properties(i))
     a = torch.cuda.FloatTensor(2).zero_()
     print('Tensor a = ' + str(a))
     b = torch.randn(2).cuda()
@@ -157,9 +160,11 @@ It returns this to me (of course, since it randomizes, the tensor numbers will b
     1.10.0
     CUDA available: True
     cuDNN version: 8201
+    GPUs: 1
+    GPU 0 _CudaDeviceProperties(name='NVIDIA Tegra X1', major=5, minor=3, total_memory=3956MB, multi_processor_count=1)
     Tensor a = tensor([0., 0.], device='cuda:0')
-    Tensor b = tensor([-0.3333, -0.6141], device='cuda:0')
-    Tensor c = tensor([-0.3333, -0.6141], device='cuda:0')
+    Tensor b = tensor([-0.0969,  0.5188], device='cuda:0')
+    Tensor c = tensor([-0.0969,  0.5188], device='cuda:0')
 
 To install [torchvision](https://pytorch.org/vision/stable/index.html), we select 0.11.1 as [NVIDIA suggests](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048):
 
@@ -172,6 +177,143 @@ To install [torchtext](https://github.com/pytorch/text), 0.11.0:
 To install [torchaudio](https://pytorch.org/audio/main/installation.html#compatibility-matrix), 0.10.0:
 
     pip3 install torchaudio==0.10.0
+
+# Install Python 3.12.9
+
+Follow these steps to install Python [3.12.9](https://github.com/python/cpython/tree/v3.12.9)
+
+Install the [build dependencies](https://devguide.python.org/getting-started/setup-building/#build-dependencies):
+
+    sudo apt install pkg-config build-essential gdb lcov pkg-config \
+      libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
+      libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
+      lzma lzma-dev tk-dev uuid-dev zlib1g-dev libmpdec-dev
+
+Then, we download it, build it, and install it without overwriting the current Python 3 installation:
+    
+    wget https://www.python.org/ftp/python/3.12.9/Python-3.12.9.tgz
+    tar -xvf Python-3.12.9.tgz
+    cd Python-3.12.9
+    ./configure --enable-optimizations
+    time make -j$(nproc)  # 32 minutes
+    sudo make altinstall  # Don't overwrite current python3
+    sudo pip3.12 install --upgrade pip
+
+To test the installation:
+
+    python3.12 --version # 3.12.9
+    ls /usr/local/bin/pip3.12
+    python3.12 -m venv --help
+
+# Build and install PyTorch 1.10.0 for Python 3.12.9
+
+*DRAFT WIP*
+
+To install PyTorch we need to build from source. As we have CUDA 10.2.300, the higher compatible release is [1.12.1](https://pytorch.org/get-started/previous-versions/#v1121). But... the improvements versus 1.10.0 are not signitificatives (IMHO) and would require some other builds because 18.04 has older commands (for instance, `cmake`).
+
+Because that, I'll install 1.10.0.
+
+We ensure `PATH` and `LD_LIBRARY_PATH` are correct:
+
+    [[ ":$PATH:" != *":/usr/local/cuda-10.2/bin:"* ]] && export PATH="$PATH:/usr/local/cuda-10.2/bin" ; echo $PATH
+    [[ ":$LD_LIBRARY_PATH:" != *":/usr/local/cuda/lib64:"* ]] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64" ; echo $LD_LIBRARY_PATH
+    
+To download the source, we'll use Git (if it's not present, please, run `sudo apt install git`): 
+
+    git clone --recursive --branch v1.10.0 http://github.com/pytorch/pytorch
+
+We move to the `torch` directory. All the next steps assume we're here:
+
+    cd pytorch
+
+Apply the patch, as stated the *Apply Patch* section of [this page](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048):
+
+    wget https://gist.githubusercontent.com/dusty-nv/ce51796085178e1f38e3c6a1663a93a1/raw/4f1a0f948150c91f877aa38075835df748c81fe5/pytorch-1.10-jetpack-4.5.1.patch -O pytorch-1.10-jetpack-4.5.1.patch
+    patch -p1 < pytorch-1.10-jetpack-4.5.1.patch
+
+We apply the following patch to avoid some issues with `distutils:
+
+    patch -p1 <_
+    --- ../cmake.py	2025-04-08 14:46:10.045550987 +0100
+    +++ tools/setup_helpers/cmake.py	2025-04-08 14:37:54.649051157 +0100
+    @@ -120,13 +120,7 @@
+                 return cmake_command
+             cmake3 = which('cmake3')
+             cmake = which('cmake')
+    -        if cmake3 is not None and CMake._get_version(cmake3) >= distutils.version.LooseVersion("3.10.0"):
+    -            cmake_command = 'cmake3'
+    -            return cmake_command
+    -        elif cmake is not None and CMake._get_version(cmake) >= distutils.version.LooseVersion("3.10.0"):
+    -            return cmake_command
+    -        else:
+    -            raise RuntimeError('no cmake or cmake3 with version >= 3.10.0 found')
+    +        return 'cmake'
+     
+         @staticmethod
+         def _get_version(cmd: str) -> Any:
+    _
+
+Install some required packages:
+
+    sudo apt install build-essential
+
+Create and activate a Python `venv`:
+
+    python3.12 -m venv venv
+    source venv/bin/activate
+
+Install some Python packages:
+
+    pip3.12 uninstall Cython
+    pip3.12 install 'Cython<3' # To avoid problemes with numpy install
+    pip3.12 uninstall setuptools
+    pip3.12 install -r requirements.txt
+    pip3.12 install scikit-build
+
+As [Build from Source](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048) requires, we add some swap space if it hasn't been done for any other reason:
+
+    sudo fallocate -l 4G /swapfile_tmp
+    sudo chmod 600 /swapfile_tmp
+    sudo mkswap /swapfile_tmp
+    sudo swapon /swapfile_tmp
+    swapon --show
+
+We set some enviroment variables, again, because the [Build from Source](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048) section says so:
+
+    export USE_NCCL=0
+    export USE_DISTRIBUTED=0
+    export USE_QNNPACK=0
+    export USE_PYTORCH_QNNPACK=0
+    export TORCH_CUDA_ARCH_LIST="5.3"
+    export PYTORCH_BUILD_VERSION=1.10.0
+    export PYTORCH_BUILD_NUMBER=1
+
+Note that `TORCH_CUDA_ARCH_LIST` is set to `5.3`. That's because [here](https://developer.nvidia.com/cuda-gpus) says that the _Compute Capability_ of our Nano is 5.3.
+
+Take a deep breath. Pray. Cross your fingers. Here we go!
+
+    nohup python3.12 setup.py bdist_wheel & # Tue Apr  8 10:44:12 +01 2025
+    tail -f nohup.out
+
+It will take about 12 hours to finish... After buid completes without errors, you can install torch:
+
+    python3 setup.py install
+
+To check if it works:
+
+    nano$python3 -c "import torch; print(torch.__version__); print(torch.cuda.is_available())"
+    nano$python3 -c "import torch; print(torch.backends.cuda.is_built())"
+
+Exit the Python `venv`:
+
+    deactivate
+
+Remove the swap space added (if any):
+
+    sudo swapoff /swapfile_tmp
+    swapon --show
+    sudo rm /swapfile_tmp
+
 
 # Next Steps
 
