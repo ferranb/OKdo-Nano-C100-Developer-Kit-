@@ -2,7 +2,7 @@
 
 **Disclaimer: Follow these notes at your own risk. I'm not responsible for anything you run in your devices. It's up to you!**
 
-This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). It's a good alternative to the official [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) product which has been discontinued. The replacement product, [NVIDIA Jetson Nano Super Developr Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), is usually out of stock. 
+This page is a bunch of notes from the process I've done to set up the [OkDo C100 NVIDIA Jetson Nano 4GB Development Kit](https://www.kubii.com/en/development-kit/3882-c100-nvidia-jetson-nano-4gb-development-kit-3272496313705.html). It's an available equivalent to the discontinued [NVIDIA Jetson Nano Developer Kit](https://developer.nvidia.com/embedded/learn/get-started-jetson-nano-devkit) product. The replacement product, [NVIDIA Jetson Nano Super Developr Kit](https://www.nvidia.com/en-us/autonomous-machines/embedded-systems/jetson-orin/nano-super-developer-kit/), is usually out of stock. 
 
 The problem is that *OKdo Nano C100 Developer Kit* is an extremely poorly documented device. The [okdo website](https://www.okdo.com/) doesn't work. I really don't know if the company is still operatin, if they just don't care about the website, or if they were adquired by another company.
 
@@ -81,9 +81,101 @@ This solution its enought for me. It boots fast, but I've sacrificed an SD card 
 
 This is a trickier option that I haven't had time to try. Theoricaly, you need to create a new image which load the differents usb drivers to boot from an USB drive. Also you can take the advantage that the `c100.img` is the same version that the one in the eMMC.
 
-# Next steps
+# About the system updates
 
-I have the device running with the full operating system on a SSD. Theorically, from this point on, coding should be the same that as the original NVIDIA nano... we'll see. I'll check [how Torch works](pytorch.md), the pinouts, camera and so on.  
+**WARNING**. Don't run sudo `sudo apt update && sudo apt upgrade` because it can break some things. It's better to leave everything unchanged to avoid breaking compatibility with CUDA, cuDNN, or other NVIDIA components.
+
+# Checking what's installed
+
+You can check your system configuration by installing and running:
+
+    sudo pip3 install jetson-stats
+    sudo jtop
+
+Press `7` to see the `info` page.
+
+We'll also check other ways to obtain that information, as it could be useful in some scenarios.
+
+To check our JetPack version:
+
+    nano:~$ cat /etc/nv_tegra_release 
+    # R32 (release), REVISION: 7.6, GCID: 38171779, BOARD: t210ref, EABI: aarch64, DATE: Tue Nov  5 07:46:14 UTC 2024
+
+`R32 (realease)` and `REVISION: 7.6` correspond to `L4T 32.7.6`. As you can see [here](https://developer.nvidia.com/embedded/jetpack-archive), JetPack 4.6.6 is L4T 32.7.6. But... `jtop` says to me 4.6.1. Probably, `jtop` checks the major release, while the contents of `nv_tegra_release` show the latest update.
+
+Python 3 version (In my case, it's 3.6.9):
+
+    python3 --version
+
+Ubuntu release (In my case, Ubuntu 18.04.6 LTS):
+
+    lsb_release -d
+
+CUDA version (In my case, [10.2.300](https://developer.nvidia.com/cuda-10.2-download-archive). [Here are the docs](https://docs.nvidia.com/cuda/archive/10.2/)):
+
+    nvcc --version
+    cat /usr/local/cuda/version.txt
+
+cuDNN version (In my case, [8.2.1.32](https://developer.nvidia.com/rdp/cudnn-archive)):
+
+    apt list --installed | grep cudnn
+
+As a recap, my Jetson has:
+
+    Ubuntu 18.04.6 LTS
+    JetPack 4.6.6
+    Python 3.6.9
+    CUDA 10.2.300
+    cuDNN 8.2.1.32
+
+# Installing PyTorch 1.10.0
+
+We are going to install [Torch 1.10.0](https://github.com/pytorch/pytorch/tree/v1.10.0) because is the one that [NVIDIA recommends](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048):
+
+    wget https://nvidia.box.com/shared/static/fjtbno0vpo676a25cgvuqc1wty0fkkg6.whl -O torch-1.10.0-cp36-cp36m-linux_aarch64.whl
+    sudo apt-get install python3-pip libopenblas-base libopenmpi-dev libomp-dev
+    pip3 install 'Cython<3'
+    pip3 install numpy torch-1.10.0-cp36-cp36m-linux_aarch64.whl
+
+After the install, you can check it:
+
+    python3 <<_
+    import torch
+    print(torch.__version__)
+    print('CUDA available: ' + str(torch.cuda.is_available()))
+    print('cuDNN version: ' + str(torch.backends.cudnn.version()))
+    a = torch.cuda.FloatTensor(2).zero_()
+    print('Tensor a = ' + str(a))
+    b = torch.randn(2).cuda()
+    print('Tensor b = ' + str(b))
+    c = a + b
+    print('Tensor c = ' + str(c))
+    _
+
+It returns this to me (of course, since it randomizes, the tensor numbers will be different for you):
+    
+    1.10.0
+    CUDA available: True
+    cuDNN version: 8201
+    Tensor a = tensor([0., 0.], device='cuda:0')
+    Tensor b = tensor([-0.3333, -0.6141], device='cuda:0')
+    Tensor c = tensor([-0.3333, -0.6141], device='cuda:0')
+
+To install [torchvision](https://pytorch.org/vision/stable/index.html), we select 0.11.1 as [NVIDIA suggests](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048):
+
+    pip3 install torchvision==0.11.1
+
+To install [torchtext](https://github.com/pytorch/text), 0.11.0:
+
+    pip3 install torchtext==0.11.0 
+    
+To install [torchaudio](https://pytorch.org/audio/main/installation.html#compatibility-matrix), 0.10.0:
+
+    pip3 install torchaudio==0.10.0
+
+# Next Steps
+
+*TODO*: Install a newer Python and Torch version, test Docker setups, etc.
 
 # References
 
